@@ -18,14 +18,15 @@ def replace_line(line):
   
     return line
 
-with open('input.txt', 'r') as f:
-  sum = 0
+data = open(0).read()
 
-  for line in f:
-    replaced = replace_line(line)
+sum = 0
 
-    digits = re.findall(r'\d', replaced)
+for line in data.splitlines():
+  replaced = replace_line(line)
 
-    sum += int(digits[0] + digits[-1])
-  
-  print(sum)
+  digits = re.findall(r'\d', replaced)
+
+  sum += int(digits[0] + digits[-1])
+
+print(sum)
