@@ -1,42 +1,50 @@
-# Calculating the minimum set of cubes required for each game and summing their powers
+# Combining solutions for both Part 1 and Part 2
 
-def min_cubes_power(game_data):
-    # Split the data into individual sets of revealed cubes
-    sets_of_cubes = game_data.split("; ")
+def analyze_games_combined(games_data, red_limit, green_limit, blue_limit):
+    def game_info_parser(game_info):
+        sets_of_cubes = game_info.split("; ")
+        min_red, min_green, min_blue, possible = 0, 0, 0, True
 
-    min_red, min_green, min_blue = 0, 0, 0
+        for cube_set in sets_of_cubes:
+            red_count = green_count = blue_count = 0
 
-    # Determine the minimum number of each color cube required
-    for cube_set in sets_of_cubes:
-        red_count = green_count = blue_count = 0
+            for cube_info in cube_set.split(", "):
+                count, color = cube_info.split(" ")
+                if color.startswith("red"):
+                    red_count = int(count)
+                elif color.startswith("green"):
+                    green_count = int(count)
+                elif color.startswith("blue"):
+                    blue_count = int(count)
 
-        # Count the number of each color cube in the set
-        for cube_info in cube_set.split(", "):
-            count, color = cube_info.split(" ")
-            if color.startswith("red"):
-                red_count = int(count)
-            elif color.startswith("green"):
-                green_count = int(count)
-            elif color.startswith("blue"):
-                blue_count = int(count)
+            min_red = max(min_red, red_count)
+            min_green = max(min_green, green_count)
+            min_blue = max(min_blue, blue_count)
 
-        # Update the minimum count if this set has more cubes of a certain color
-        min_red = max(min_red, red_count)
-        min_green = max(min_green, green_count)
-        min_blue = max(min_blue, blue_count)
+            # Check if the game is possible with the given limits
+            if red_count > red_limit or green_count > green_limit or blue_count > blue_limit:
+                possible = False
 
-    return min_red * min_green * min_blue
+        return min_red, min_green, min_blue, possible
 
-def sum_of_powers_of_min_cubes(games_data):
+    possible_game_ids = []
     total_power = 0
+
     for game in games_data.split("\n"):
-        _, game_info = game.split(": ")
-        total_power += min_cubes_power(game_info)
+        game_id, game_info = game.split(": ")
+        min_red, min_green, min_blue, possible = game_info_parser(game_info)
 
-    return total_power
+        if possible:
+            possible_game_ids.append(int(game_id.split(" ")[1]))
 
+        total_power += min_red * min_green * min_blue
+
+    possible_games_sum = sum(possible_game_ids)
+    return possible_games_sum, total_power
 
 games_data = open(0).read()
 
-# Summing the powers of the minimum sets of cubes for the example games
-print(sum_of_powers_of_min_cubes(games_data.strip()))
+# Example games data
+combined_result = analyze_games_combined(games_data.strip(), 12, 13, 14)
+
+print(combined_result)
