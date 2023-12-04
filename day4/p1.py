@@ -1,34 +1,23 @@
 D = open(0).read()
 
 
-# Part 1
 def part1():
     lines = D.splitlines()
 
-    total_points = 0
+    points = 0
     for line in lines:
-        card_number, card_data = line.split(":")
+        card_data = line.split(":")[1]
+
         winning_numbers, my_numbers = card_data.split("|")
         winning_numbers = winning_numbers.split()
         my_numbers = my_numbers.split()
-        print(f"card_number: {card_number}")
-        print(f"winning_numbers: {winning_numbers}")
-        print(f"my_numbers: {my_numbers}")
 
-        winners = 0
-        for number in my_numbers:
-            if number in winning_numbers:
-                print(f"Number {number} is a winner!")
-                winners += 1
-            else:
-                print(f"Number {number} is a loser!")
+        winners = sum(1 for number in my_numbers if number in winning_numbers)
 
-        print(f"Total winners: {winners}")
-        card_total = 2 ** (winners - 1) if winners > 0 else 0
-        print(f"Total score: {card_total}")
-        total_points += card_total
+        if winners != 0:
+            points += 2 ** (winners - 1)
 
-    print(f"Total points: {total_points}")
+    print(f"points: {points}")
 
 
 if __name__ == "__main__":
