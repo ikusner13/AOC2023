@@ -9,13 +9,13 @@ def part1():
         card_data = line.split(":")[1]
 
         winning_numbers, my_numbers = card_data.split("|")
-        winning_numbers = winning_numbers.split()
-        my_numbers = my_numbers.split()
+        winning_numbers = set(winning_numbers.split())
+        my_numbers = set(my_numbers.split())
 
-        winners = sum(1 for number in my_numbers if number in winning_numbers)
+        intersections = len(winning_numbers.intersection(my_numbers))
 
-        if winners != 0:
-            points += 2 ** (winners - 1)
+        if intersections:
+            points += 2 ** (intersections - 1)
 
     print(f"points: {points}")
 

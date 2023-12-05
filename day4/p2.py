@@ -20,17 +20,17 @@ def part2():
         number_on_card = int(card_number.split()[1])
         winning_numbers, my_numbers = card_data.split("|")
         winning_numbers = set(winning_numbers.split())
-        my_numbers = my_numbers.split()
+        my_numbers = set(my_numbers.split())
 
         # get the number of winning numbers on the current card
         # another way to write this would be:
         # for number in my_numbers:
         #     if number in winning_numbers:
         #         winners += 1
-        winners = sum(1 for number in my_numbers if number in winning_numbers)
+        intersections = len(winning_numbers.intersection(my_numbers))
 
         # loop through the winners and add copies to the next lines
-        for i in range(1, winners + 1):
+        for i in range(1, intersections + 1):
             # add the number of instances on the current line to the next line
             # for example, if there are 2 instances of the current card on the current line,
             # add 2 instances of the next card to the next line
