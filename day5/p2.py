@@ -8,171 +8,83 @@ def part2():
 
     seeds = lines[0].split(":")[1].strip().split()
 
-    seed_to_soil = lines[1].splitlines()
+    maps = list(map(lambda x: x.splitlines(), lines[1::]))
 
-    soil_to_fertilizer = lines[2].splitlines()
-
-    fertilizer_to_water = lines[3].splitlines()
-
-    water_to_light = lines[4].splitlines()
-
-    light_to_temperature = lines[5].splitlines()
-
-    temperature_to_humidity = lines[6].splitlines()
-
-    humidity_to_location = lines[7].splitlines()
-
-    def create_range(lines):
-        ranges = []
-
-        for line in lines[1::]:
-            types = line.split()
-            destination_start = int(types[0])
-            source_start = int(types[1])
-            range_length = int(types[2])
-
-            ranges.append(
-                {
-                    "source_start": source_start,
-                    "source_end": source_start + range_length - 1,
-                    "destination_start": destination_start,
-                    "destination_end": destination_start + range_length - 1,
-                }
-            )
-
-        return ranges
+    print(maps)
 
     def create_seed_ranges(seeds):
         seed_ranges = []
         for i in range(0, len(seeds), 2):
-            seed_ranges.append((seeds[i], seeds[i + 1]))
+            seed_ranges.append((int(seeds[i]), int(seeds[i]) + int(seeds[i + 1]) - 1))
 
         return seed_ranges
 
-    def is_in_range(start, end, source):
-        print(f"start: {start}, end: {end}, source: {source}")
-        return start >= source["source_start"] and start <= source["source_end"]
-
-    def get_destination_range(input_num, input_range_length, rs):
-        print(f"input_num: {input_num}, input_range_length: {input_range_length}")
-        for r in rs:
-            if is_in_range(input_num, input_num + input_range_length, r):
-                print(
-                    f"seed {input_num} is in range {r['source_start']} - {r['source_end']}"
-                )
-                destination_range_length = r["source_end"] - r["source_start"] + 1
-                destination = (
-                    r["destination_start"],
-                    destination_range_length,
-                    input_num - r["source_start"] + r["destination_start"],
-                )
-                print(f"destination: {destination}")
-                return destination
-
-        return (input_num, input_range_length, input_num)
-
     seed_ranges = create_seed_ranges(seeds)
 
-    locations = []
-    for seed_range in seed_ranges:
-        print(f"seed_range: {seed_range}")
-        start_num = int(seed_range[0])
-        seed_range_length = int(seed_range[1])
-
-        seed_to_soil_ranges = create_range(seed_to_soil)
-
-        soil_destination_range = get_destination_range(
-            start_num, seed_range_length, seed_to_soil_ranges
-        )
-
-        print(f"soil_destination range: {soil_destination_range}")
+    input_ranges = seed_ranges
+    for m in maps:
         print("")
+        mapping_rules = list(map(lambda x: x.split(), m[1::]))
+        print(f"map: {m[0]}")
+        print("#################")
 
-        soil_to_fertilizer_ranges = create_range(soil_to_fertilizer)
+        for rule in mapping_rules:
+            print("")
+            source_range = (int(rule[1]), int(rule[1]) + int(rule[2]) - 1)
+            destination_range = (int(rule[0]), int(rule[0]) + int(rule[2]) - 1)
 
-        fertilizer_destination_range = get_destination_range(
-            soil_destination_range[2],
-            soil_destination_range[0]
-            + soil_destination_range[1]
-            - soil_destination_range[2]
-            - 1,
-            soil_to_fertilizer_ranges,
-        )
+            print(f"source_range: {source_range}")
+            print(f"destination_range: {destination_range}")
 
-        print(f"fertilizer_destination range: {fertilizer_destination_range}")
-        print("")
+            next_ranges = []
+            for input_range in input_ranges:
+                # if input range is fully contained in source range
+                print("fully contained")
+                if (
+                    input_range[0] >= source_range[0]
+                    and input_range[1] <= source_range[1]
+                ):
+                    range_min = input_range[0] - source_range[0] + destination_range[0]
+                    range_max = input_range[1] - source_range[1] + destination_range[1]
 
-        fertilizer_to_water_ranges = create_range(fertilizer_to_water)
+                    next_ranges.append((range_min, range_max))
+                    break
 
-        water_destination_range = get_destination_range(
-            fertilizer_destination_range[2],
-            fertilizer_destination_range[0]
-            + fertilizer_destination_range[1]
-            - fertilizer_destination_range[2]
-            - 1,
-            fertilizer_to_water_ranges,
-        )
+                # if input range is partially contained in source range
+                if (
+                    input_range[0] >= source_range[0]
+                    and input_range[0] <= source_range[1]
+                    and input_range[1] >= source_range[1]
+                ):
+                    print("partially contained 1")
+                    range_min = input_range[0] - source_range[0] + destination_range[0]
+                    range_max = destination_range[1]
 
-        print(f"water_destination range: {water_destination_range}")
-        print("")
+                    next_ranges.append((range_min, range_max))
 
-        water_to_light_ranges = create_range(water_to_light)
+                if (
+                    input_range[1] >= source_range[0]
+                    and input_range[1] <= source_range[1]
+                    and input_range[0] <= source_range[0]
+                ):
+                    print("partially contained 2")
+                    range_min = source_range[0]
+                    range_max = input_range[1]
 
-        light_destination_range = get_destination_range(
-            water_destination_range[2],
-            water_destination_range[0]
-            + water_destination_range[1]
-            - water_destination_range[2]
-            - 1,
-            water_to_light_ranges,
-        )
+                    next_ranges.append((range_min, range_max))
 
-        print(f"light_destination range: {light_destination_range}")
-        print("")
+                if len(next_ranges) == 0:
+                    next_ranges.append(input_range)
 
-        light_to_temperature_ranges = create_range(light_to_temperature)
+            input_ranges = next_ranges
 
-        temperature_destination_range = get_destination_range(
-            light_destination_range[2],
-            light_destination_range[0]
-            + light_destination_range[1]
-            - light_destination_range[2]
-            - 1,
-            light_to_temperature_ranges,
-        )
+        print(f"input_ranges: {input_ranges}")
 
-        print(f"temperature_destination range: {temperature_destination_range}")
-        print("")
+    output = input_ranges[0]
 
-        temperature_to_humidity_ranges = create_range(temperature_to_humidity)
-
-        humidity_destination_range = get_destination_range(
-            temperature_destination_range[2],
-            temperature_destination_range[0]
-            + temperature_destination_range[1]
-            - temperature_destination_range[2]
-            - 1,
-            temperature_to_humidity_ranges,
-        )
-
-        print(f"humidity_destination range: {humidity_destination_range}")
-        print("")
-
-        humidity_to_location_ranges = create_range(humidity_to_location)
-
-        location_destination_range = get_destination_range(
-            humidity_destination_range[2],
-            humidity_destination_range[0]
-            + humidity_destination_range[1]
-            - humidity_destination_range[2]
-            - 1,
-            humidity_to_location_ranges,
-        )
-
-        print(f"location_destination range: {location_destination_range}")
-        locations.append(location_destination_range[2])
-
-    print(min(locations))
+    print(f"output: {output}")
+    # for i in range(output[0], output[1] + 1):
+    #     print(i)
 
 
 if __name__ == "__main__":

@@ -53,7 +53,8 @@ def part1():
         return seed
 
     locations = []
-    for seed in seeds:
+    p2 = (1859185420, 1860104792)
+    for seed in range(p2[0], p2[1] + 1):
         soil = get_destination(seed, seed_to_soil_range)
         fertilizer = get_destination(soil, create_range(soil_to_fertilizer))
         water = get_destination(fertilizer, create_range(fertilizer_to_water))
