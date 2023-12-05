@@ -3,7 +3,7 @@ from time import time
 D = open(0).read()
 
 
-def part1():
+def part2():
     lines = D.split("\n\n")
 
     seeds = lines[0].split(":")[1].strip().split()
@@ -42,8 +42,6 @@ def part1():
 
         return ranges
 
-    seed_to_soil_range = create_range(seed_to_soil)
-
     def get_destination(seed, range):
         seed = int(seed)
         for m in range:
@@ -52,21 +50,19 @@ def part1():
                 return seed_destination
         return seed
 
-    locations = []
-    for seed in seeds:
-        soil = get_destination(seed, seed_to_soil_range)
-        fertilizer = get_destination(soil, create_range(soil_to_fertilizer))
-        water = get_destination(fertilizer, create_range(fertilizer_to_water))
-        light = get_destination(water, create_range(water_to_light))
-        temperature = get_destination(light, create_range(light_to_temperature))
-        humidity = get_destination(temperature, create_range(temperature_to_humidity))
-        location = get_destination(humidity, create_range(humidity_to_location))
-        locations.append(location)
+    def create_seed_ranges(seeds):
+        ## group seeds into groups of 2
 
-    print(min(locations))
+        seed_ranges = []
+        for i in range(0, len(seeds), 2):
+            seed_ranges.append((seeds[i], seeds[i + 1]))
+
+        return seed_ranges
+
+    location = create_range(humidity_to_location)
 
 
 if __name__ == "__main__":
     start_time = time()
-    part1()
+    part2()
     print(f"--- {time() - start_time} seconds ---")
