@@ -29,17 +29,14 @@ def part2():
         print("#################")
 
         for rule in mapping_rules:
-            print("")
+            print(f"rule: {rule}")
             source_range = (int(rule[1]), int(rule[1]) + int(rule[2]) - 1)
             destination_range = (int(rule[0]), int(rule[0]) + int(rule[2]) - 1)
 
-            print(f"source_range: {source_range}")
-            print(f"destination_range: {destination_range}")
-
             next_ranges = []
+            print(f"input_ranges: {input_ranges}")
             for input_range in input_ranges:
                 # if input range is fully contained in source range
-                print("fully contained")
                 if (
                     input_range[0] >= source_range[0]
                     and input_range[1] <= source_range[1]
@@ -56,7 +53,6 @@ def part2():
                     and input_range[0] <= source_range[1]
                     and input_range[1] >= source_range[1]
                 ):
-                    print("partially contained 1")
                     range_min = input_range[0] - source_range[0] + destination_range[0]
                     range_max = destination_range[1]
 
@@ -67,24 +63,20 @@ def part2():
                     and input_range[1] <= source_range[1]
                     and input_range[0] <= source_range[0]
                 ):
-                    print("partially contained 2")
-                    range_min = source_range[0]
-                    range_max = input_range[1]
+                    range_min = destination_range[0]
+                    range_max = destination_range[1] - (
+                        source_range[1] - input_range[1]
+                    )
 
                     next_ranges.append((range_min, range_max))
 
                 if len(next_ranges) == 0:
                     next_ranges.append(input_range)
-
             input_ranges = next_ranges
-
-        print(f"input_ranges: {input_ranges}")
 
     output = input_ranges[0]
 
     print(f"output: {output}")
-    # for i in range(output[0], output[1] + 1):
-    #     print(i)
 
 
 if __name__ == "__main__":
