@@ -39,85 +39,72 @@ T = {
 
 
 def determine_hand_type(hand):
-    types = []
-    pairs = set()
-    for card in hand:
-        if hand.count(card) == 2:
-            pairs.add(card)
+    j_count = hand.count("J")
 
-    if len(pairs) == 1:
-        if "J" in pairs:
-            three_found = False
-            for card in hand:
-                if hand.count(card) == 3:
-                    three_found = True
+    current_best = "high card"
 
-            if three_found:
-                types.append("five of a kind")
+    counted = set()
+    for h in hand:
+        if h in counted or h == "J":
+            continue
+
+        count = hand.count(h)
+        counted.add(h)
+
+        if count == 1:
+            current_best = current_best
+        elif count == 2:
+            if current_best == "pair":
+                current_best = "two pair"
+            elif current_best == "three of a kind":
+                current_best = "full house"
             else:
-                types.append("three of a kind")
+                current_best = "pair"
+
+        elif count == 3:
+            if current_best == "pair":
+                current_best = "full house"
+            else:
+                current_best = "three of a kind"
+        elif count == 4:
+            current_best = "four of a kind"
         else:
-            if hand.count("J") == 1:
-                types.append("three of a kind")
-            elif hand.count("J") == 3:
-                types.append("five of a kind")
-            else:
-                types.append("pair")
-    elif len(pairs) == 2:
-        if "J" in pairs:
-            types.append("four of a kind")
-        else:
-            if hand.count("J") == 1:
-                types.append("full house")
-            else:
-                types.append("two pair")
+            current_best = "five of a kind"
 
-    # check for three of a kind
-    for card in hand:
-        if hand.count(card) == 3:
-            j_count = hand.count("J")
-            if j_count == 1:
-                types.append("four of a kind")
-            elif j_count == 2:
-                types.append("five of a kind")
-            elif j_count == 3:
-                types.append("four of a kind")
-            else:
-                types.append("three of a kind")
-            break
+    if current_best == "high card":
+        if j_count == 1:
+            current_best = "pair"
+        elif j_count == 2:
+            current_best = "three of a kind"
+        elif j_count == 3:
+            current_best = "four of a kind"
+        elif j_count == 4:
+            current_best = "five of a kind"
+        elif j_count == 5:
+            current_best = "five of a kind"
 
-    # check for 4 of a kind
-    for card in hand:
-        if hand.count(card) == 4:
-            if hand.count("J") == 1:
-                types.append("five of a kind")
-            elif card == "J":
-                types.append("five of a kind")
-            else:
-                types.append("four of a kind")
-            break
+    elif current_best == "pair":
+        if j_count == 1:
+            current_best = "three of a kind"
+        elif j_count == 2:
+            current_best = "four of a kind"
+        elif j_count == 3:
+            current_best = "five of a kind"
 
-    # check for 5 of a kind
-    for card in hand:
-        if hand.count(card) == 5:
-            types.append("five of a kind")
-            break
+    elif current_best == "two pair":
+        if j_count == 1:
+            current_best = "full house"
 
-    # check for full house
-    if len(types) == 2 and types[0] == ("pair") and types[1] == ("three of a kind"):
-        del types[0]
-        del types[0]
-        types.append("full house")
+    elif current_best == "three of a kind":
+        if j_count == 1:
+            current_best = "four of a kind"
+        elif j_count == 2:
+            current_best = "five of a kind"
 
-    # high card
-    if len(types) == 0:
-        if hand.count("J") == 1:
-            types.append("pair")
-        else:
-            types.append("high card")
+    elif current_best == "four of a kind" and j_count == 1:
+        current_best = "five of a kind"
 
-    print(types)
-    return T[types[0]]
+    return T[current_best]
 
 
 def part2():
