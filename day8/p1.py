@@ -1,32 +1,30 @@
+from itertools import cycle
+
 D = open(0).read().split("\n\n")
 
 directions = {"R": 1, "L": 0}
 
 
 def part1():
-    instructions = D[0] * 60
-    nodes_list = D[1].split("\n")
+    instructions = D[0]
     paths = {}
-    for node in nodes_list:
+    for node in D[1].split("\n"):
         start, rl = node.split("=")
-        start = start.strip()
-        rl = rl.split(",")
-        left = rl[0].strip()[1::]
-        right = rl[1].strip()[:-1]
-        paths[start] = (left, right)
+        left, right = [x.strip().strip("()") for x in rl.split(",")]
+        paths[start.strip()] = (left, right)
 
     current_location = "AAA"
     steps = 0
-    for i in instructions:
-        next_location = paths[current_location][directions[i]]
-        current_location = next_location
+    # TODO: instead of cycling instructions, check for a cycle in the navigation
+    for i in cycle(instructions):
+        current_location = paths[current_location][directions[i]]
         steps += 1
 
         if current_location == "ZZZ":
-            break
+            return steps
 
-    print(steps)
+    return steps
 
 
 if __name__ == "__main__":
-    part1()
+    print(part1())
