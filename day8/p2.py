@@ -1,3 +1,6 @@
+import math
+
+
 D = open(0).read().split("\n\n")
 
 directions = {"R": 1, "L": 0}
@@ -19,25 +22,26 @@ def part2():
     for k in list(paths.keys()):
         if k[-1] == "A":
             starting_points.append(k)
-    print(starting_points)
 
     steps = 0
-    seen = []
+    seen = set()
     for i in instructions:
+        for spi, sp in enumerate(starting_points):
+            if sp.endswith("Z"):
+                seen.add((sp, steps))
+            next_location = paths[sp][directions[i]]
+            starting_points[spi] = next_location
+
         if len(seen) == len(starting_points):
             break
-        if all(point.endswith("Z") for point in starting_points):
-            break
-        for spi, sp in enumerate(starting_points):
-            next_location = paths[sp][directions[i]]
-            if next_location.endswith("Z"):
-                seen.append(sp)
-            starting_points[spi] = next_location
 
         steps += 1
 
-    print(steps)
-    print(seen)
+    numbers = [num for _, num in seen]
+
+    lcm = math.lcm(*numbers)
+
+    print(lcm)
 
 
 if __name__ == "__main__":
