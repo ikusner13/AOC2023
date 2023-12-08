@@ -19,59 +19,97 @@ def part2():
 
     seed_ranges = create_seed_ranges(seeds)
 
-    input_ranges = seed_ranges
-    for m in maps:
-        print("")
+    input_ranges = [(74, 87)]  # seed_ranges
+    destination_ranges = []
+    for m in [maps[4]]:
         mapping_rules = list(map(lambda x: x.split(), m[1::]))
         print(f"map: {m[0]}")
         print("#################")
 
-        next_ranges = set()
-        for i, input_range in enumerate(input_ranges):
-            in_range = False
-            range_start = input_range[0]
-            range_end = input_range[1]
+        for rule in mapping_rules:
+            print(f"rule: {rule}")
+            source_range = (int(rule[1]), int(rule[1]) + int(rule[2]) - 1)
+            destination_range = (int(rule[0]), int(rule[0]) + int(rule[2]) - 1)
 
-            for rule in mapping_rules:
-                source_range = (int(rule[1]), int(rule[1]) + int(rule[2]) - 1)
-                destination_range = (int(rule[0]), int(rule[0]) + int(rule[2]) - 1)
+            next_ranges = []
+            print(f"input_ranges: {input_ranges}")
+            print(f"source_range: {source_range}")
+            print("-" * 20)
+            for input_range in input_ranges:
+                print(f"input range: {input_range}")
+                """
+                # fully outside
+                if input_range[0] > source_range[1] or input_range[1] < source_range[0]:
+                    print("fully outside\n")
+                    # destination_ranges.append((input_range[0], input_range[1]))
+                    continue
 
-                # fully contained
-                if range_start >= source_range[0] and range_end <= source_range[1]:
-                    in_range = True
-                    destination_range_start = (
-                        range_start - source_range[0] + destination_range[0]
+                # if input range is fully contained in source range
+                elif (
+                    input_range[0] >= source_range[0]
+                    and input_range[1] <= source_range[1]
+                ):
+                    print("fully inside\n")
+                    destination_start = destination_range[0] + (
+                        input_range[0] - source_range[0]
                     )
-                    destination_range_end = (
-                        range_end - source_range[1] + destination_range[1]
+                    destination_end = destination_range[1] + (
+                        input_range[1] - source_range[1]
                     )
-
-                    next_ranges.add((destination_range_start, destination_range_end))
+                    destination_ranges.append((destination_start, destination_end))
+                    continue
+                """
 
                 # partially contained
                 if (
-                    range_start < source_range[0]
-                    and range_end < source_range[1]
-                    and range_end >= source_range[0]
+                    input_range[1] > source_range[0]
+                    and input_range[1] < source_range[1]
+                    and input_range[0] < source_range[0]
                 ):
-                    in_range = True
-                    destination_range_start = destination_range[0]
-                    destination_range_end = destination_range[1] - (
-                        source_range[1] - range_end
-                    )
-                    next_ranges.add((destination_range_start, destination_range_end))
+                    print("partial 1")
+                    # split into 2 groups
+                    # outside group
+                    next_ranges.append((input_range[0], source_range[0] - 1))
 
-                    new_range_start = range_start
-                    new_range_end = source_range[0] - 1
+                    # inside group
+                    next_ranges.append((source_range[0], input_range[1]))
 
-                    input_ranges.append((new_range_start, new_range_end))
+                elif (
+                    input_range[0] < source_range[1]
+                    and input_range[1] > source_range[1]
+                    and input_range[0] > source_range[0]
+                ):
+                    print("partial 2")
+                    # outside group
+                    next_ranges.append((source_range[1] + 1, input_range[1]))
 
-            if len(next_ranges) == 0 or not in_range:
-                next_ranges.add((range_start, range_end))
+                    # inside group
+                    next_ranges.append((input_range[0], source_range[1]))
+                elif (
+                    input_range[0] < source_range[0]
+                    and input_range[1] > source_range[1]
+                ):
+                    print("partial 3")
+                    # outside left group
+                    next_ranges.append((input_range[0], source_range[0] - 1))
 
-        input_ranges = list(next_ranges)
+                    # contained group
+                    next_ranges.append((source_range[0], source_range[1]))
 
-    print(f"min: {min(input_ranges, key=lambda x: x[0])[0]}")
+                    # outside right group
+                    next_ranges.append((source_range[1] + 1, input_range[1]))
+
+                print(f"next ranges: {next_ranges}\n")
+
+                # input_ranges.extend(next_ranges)
+
+        input_ranges = destination_ranges
+        print(f"new input ranges: {input_ranges}")
+        print("")
+
+    output = input_ranges
+
+    print(f"output: {output}")
 
 
 if __name__ == "__main__":
