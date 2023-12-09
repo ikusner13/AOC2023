@@ -1,7 +1,7 @@
 D = open(0).read().splitlines()
 
 
-def part1():
+def part2():
     lines = lines = [list(map(int, x.split())) for x in D]
 
     differences = []
@@ -22,13 +22,13 @@ def part1():
         diffs.insert(0, line)
         for i, item in enumerate(reversed(diffs)):
             if i == 0:
-                item.append(0)
+                item.insert(0, 0)
                 continue
-            item.append(item[-1] + list(reversed(diffs))[i - 1][-1])
+            item.insert(0, (item[0] - list(reversed(diffs))[i - 1][0]))
         differences.append(diffs)
 
-    print(sum([l[0][-1] for l in differences]))
+    print(sum([l[0][0] for l in differences]))
 
 
 if __name__ == "__main__":
-    part1()
+    part2()
