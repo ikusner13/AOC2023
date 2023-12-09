@@ -31,28 +31,27 @@ T = {
 
 
 def determine_hand_type(hand):
-    counter = Counter()
-    best_type = T["high card"]
-    for card in hand:
-        counter[card] += 1
-        if counter[card] == 4:
-            best_type = T["four of a kind"]
-        elif counter[card] == 5:
-            best_type = T["five of a kind"]
-        elif counter[card] == 2:
-            if best_type == T["pair"]:
-                best_type = T["two pair"]
-            elif 3 in counter.values():
-                best_type = T["full house"]
-            else:
-                best_type = T["pair"]
-        elif counter[card] == 3:
-            if 2 in counter.values():
-                best_type = T["full house"]
-            else:
-                best_type = T["three of a kind"]
+    counter = Counter(hand)
+    counts = list(counter.values())
 
-    return best_type
+    if 4 in counts:
+        return T["four of a kind"]
+    elif 5 in counts:
+        return T["five of a kind"]
+    elif 2 in counts:
+        if counts.count(2) == 2:
+            return T["two pair"]
+        elif 3 in counts:
+            return T["full house"]
+
+        return T["pair"]
+    elif 3 in counts:
+        if 2 in counts:
+            return T["full house"]
+
+        return T["three of a kind"]
+
+    return T["high card"]
 
 
 def part2():
