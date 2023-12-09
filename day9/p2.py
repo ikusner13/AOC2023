@@ -6,26 +6,17 @@ def part2():
 
     differences = []
     for line in lines:
-        row = []
-        for i, step in enumerate(line):
-            if i == len(line) - 1:
-                break
-            row.append(line[i + 1] - step)
+        d = [line]
+        while d[-1].count(0) < len(d[-1]):
+            d.append([d[-1][r + 1] - d[-1][r] for r in range(0, len(d[-1]) - 1)])
 
-        diffs = []
-        c = list(row)
-        while c.count(0) < len(c):
-            c = [c[d + 1] - c[d] for d in range(0, len(c) - 1)]
-            diffs.append(c)
-
-        diffs.insert(0, row)
-        diffs.insert(0, line)
-        for i, item in enumerate(reversed(diffs)):
+        for i, item in enumerate(d[::-1]):
             if i == 0:
                 item.insert(0, 0)
-                continue
-            item.insert(0, (item[0] - list(reversed(diffs))[i - 1][0]))
-        differences.append(diffs)
+            else:
+                item.insert(0, (item[0] - d[::-1][i - 1][0]))
+
+        differences.append(d)
 
     print(sum([l[0][0] for l in differences]))
 
