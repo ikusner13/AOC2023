@@ -1,15 +1,7 @@
+from collections import Counter
 from time import time
 
 D = open(0).read()
-
-"""
-input:
-32T3K 765
-T55J5 684
-KK677 28
-KTJJT 220
-QQQJA 483
-"""
 
 C = {
     "T": 10,
@@ -39,46 +31,28 @@ T = {
 
 
 def determine_hand_type(hand):
-    types = []
-    pairs = set()
+    counter = Counter()
+    best_type = T["high card"]
     for card in hand:
-        if hand.count(card) == 2:
-            pairs.add(card)
+        counter[card] += 1
+        if counter[card] == 4:
+            best_type = T["four of a kind"]
+        elif counter[card] == 5:
+            best_type = T["five of a kind"]
+        elif counter[card] == 2:
+            if best_type == T["pair"]:
+                best_type = T["two pair"]
+            elif 3 in counter.values():
+                best_type = T["full house"]
+            else:
+                best_type = T["pair"]
+        elif counter[card] == 3:
+            if 2 in counter.values():
+                best_type = T["full house"]
+            else:
+                best_type = T["three of a kind"]
 
-    if len(pairs) == 1:
-        types.append("pair")
-    elif len(pairs) == 2:
-        types.append("two pair")
-
-    # check for three of a kind
-    for card in hand:
-        if hand.count(card) == 3:
-            types.append("three of a kind")
-            break
-
-    # check for 4 of a kind
-    for card in hand:
-        if hand.count(card) == 4:
-            types.append("four of a kind")
-            break
-
-    # check for 5 of a kind
-    for card in hand:
-        if hand.count(card) == 5:
-            types.append("five of a kind")
-            break
-
-    # check for full house
-    if len(types) == 2 and types[0] == ("pair") and types[1] == ("three of a kind"):
-        del types[0]
-        del types[0]
-        types.append("full house")
-
-    # high card
-    if len(types) == 0:
-        types.append("high card")
-
-    return T[types[0]]
+    return best_type
 
 
 def part2():
