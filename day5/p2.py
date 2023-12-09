@@ -15,21 +15,14 @@ def part2():
     ]
 
     input_ranges = list(seed_ranges)  # [(79, 92)]  # seed_ranges
-    for m in maps[0:5]:
-        destination_ranges = []
+    for m in maps[0:7]:
         mapping_rules = list(map(lambda x: list(map(int, x.split())), m[1::]))
-        print(f"map: {m[0]}")
-        print(f"inputs: {input_ranges}")
-        print("#################")
-        for d, s, r in mapping_rules:
-            source_range = (s, s + r - 1)
-            destination_range = (d, d + r - 1)
-            print(
-                f"source_range: {source_range} destination_range: {destination_range}"
-            )
-
-            for i, input_range in enumerate(input_ranges):
-                print(f"input_range: {input_range}")
+        destination_ranges = []
+        while input_ranges:
+            input_range = input_ranges.pop(0)
+            for d, s, r in mapping_rules:
+                source_range = (s, s + r - 1)
+                destination_range = (d, d + r - 1)
                 if (
                     input_range[0] >= source_range[0]
                     and input_range[1] <= source_range[1]
@@ -42,13 +35,12 @@ def part2():
                             destination_range[1] + end_offset,
                         )
                     )
-                    print("full in")
-                    del input_ranges[i]
+                    break
+
                 elif (
                     input_range[0] < source_range[0]
                     and input_range[1] > source_range[1]
                 ):
-                    print("full in and overlap")
                     # full in
                     destination_ranges.append(
                         (destination_range[0], destination_range[1])
@@ -62,12 +54,11 @@ def part2():
                             (input_range[0], source_range[0] - 1),
                         ]
                     )
-                    del input_ranges[i]
+                    break
                 elif (
                     input_range[0] >= source_range[0]
                     and input_range[0] < source_range[1]
                 ):
-                    print(f"overlap start in")
                     # inside
                     start_offset = input_range[0] - source_range[0]
                     destination_ranges.append(
@@ -76,13 +67,12 @@ def part2():
 
                     # outside
                     input_ranges.append((source_range[1] + 1, input_range[1]))
-                    del input_ranges[i]
+                    break
 
                 elif (
                     input_range[1] >= source_range[0]
                     and input_range[1] <= source_range[1]
                 ):
-                    print("overlap end in")
                     end_offset = input_range[1] - source_range[1]
                     # inside
                     destination_ranges.append(
@@ -91,16 +81,11 @@ def part2():
 
                     # outside
                     input_ranges.append((input_range[0], source_range[0] - 1))
-                    del input_ranges[i]
-                else:
-                    print("outside")
-            print(" ")
+                    break
 
-        if len(destination_ranges) == 0 or len(input_ranges) > 0:
-            destination_ranges.extend(input_ranges)
-
-        print(f"next: {destination_ranges}")
-        input_ranges = list(destination_ranges)
+            else:
+                destination_ranges.append((input_range[0], input_range[1]))
+        input_ranges = destination_ranges
 
     output = input_ranges
     print(f"output: {min(output, key=lambda x: x[0])[0]}")
