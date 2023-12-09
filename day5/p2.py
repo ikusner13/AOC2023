@@ -14,81 +14,56 @@ def part2():
         (seeds[i], seeds[i] + seeds[i + 1] - 1) for i in range(0, len(seeds), 2)
     ]
 
-    input_ranges = list(seed_ranges)  # [(79, 92)]  # seed_ranges
+    input_ranges = list(seed_ranges)
     for m in maps[0:7]:
-        mapping_rules = list(map(lambda x: list(map(int, x.split())), m[1::]))
-        destination_ranges = []
+        mapping_rules = [[int(x) for x in rule.split()] for rule in m[1::]]
+        new_inputs = []
+
         while input_ranges:
-            input_range = input_ranges.pop(0)
+            input_range_start, input_range_end = input_ranges.pop(0)
             for d, s, r in mapping_rules:
                 source_range = (s, s + r - 1)
                 destination_range = (d, d + r - 1)
+
                 if (
-                    input_range[0] >= source_range[0]
-                    and input_range[1] <= source_range[1]
+                    input_range_end < source_range[0]
+                    or input_range_start > source_range[1]
                 ):
-                    start_offset = input_range[0] - source_range[0]
-                    end_offset = input_range[1] - source_range[1]
-                    destination_ranges.append(
+                    continue  # No overlap
+
+                if (
+                    input_range_start <= source_range[1]
+                    and input_range_end >= source_range[0]
+                ):
+                    # Overlap exists
+                    start_offset = input_range_start - source_range[0]
+                    if start_offset < 0:
+                        start_offset = 0
+
+                    end_offset = input_range_end - source_range[1]
+                    if end_offset > 0:
+                        end_offset = 0
+
+                    new_inputs.append(
                         (
                             destination_range[0] + start_offset,
                             destination_range[1] + end_offset,
                         )
                     )
+
+                    # new outside ranges need to go through map
+                    if input_range_start < source_range[0]:
+                        input_ranges.append((input_range_start, source_range[0] - 1))
+                    if input_range_end > source_range[1]:
+                        input_ranges.append((source_range[1] + 1, input_range_end))
                     break
+            else:  # break was not encountered (no overlap on any rule)
+                new_inputs.append((input_range_start, input_range_end))
 
-                elif (
-                    input_range[0] < source_range[0]
-                    and input_range[1] > source_range[1]
-                ):
-                    # full in
-                    destination_ranges.append(
-                        (destination_range[0], destination_range[1])
-                    )
+        # set inputs for next map section
+        input_ranges = new_inputs
 
-                    # left out
-                    # right out
-                    input_ranges.extend(
-                        [
-                            (source_range[1] + 1, input_range[1]),
-                            (input_range[0], source_range[0] - 1),
-                        ]
-                    )
-                    break
-                elif (
-                    input_range[0] >= source_range[0]
-                    and input_range[0] < source_range[1]
-                ):
-                    # inside
-                    start_offset = input_range[0] - source_range[0]
-                    destination_ranges.append(
-                        (destination_range[0] + start_offset, destination_range[1])
-                    )
-
-                    # outside
-                    input_ranges.append((source_range[1] + 1, input_range[1]))
-                    break
-
-                elif (
-                    input_range[1] >= source_range[0]
-                    and input_range[1] <= source_range[1]
-                ):
-                    end_offset = input_range[1] - source_range[1]
-                    # inside
-                    destination_ranges.append(
-                        (destination_range[0], destination_range[1] + end_offset)
-                    )
-
-                    # outside
-                    input_ranges.append((input_range[0], source_range[0] - 1))
-                    break
-
-            else:
-                destination_ranges.append((input_range[0], input_range[1]))
-        input_ranges = destination_ranges
-
-    output = input_ranges
-    print(f"output: {min(output, key=lambda x: x[0])[0]}")
+    print(f"output: {min(input_ranges, key=lambda x: x[0])[0]}")
 
 
 if __name__ == "__main__":
