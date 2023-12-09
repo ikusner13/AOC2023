@@ -57,22 +57,14 @@ def determine_hand_type(hand):
 def part2():
     lines = D.splitlines()
 
-    types_in_hand = []
-    for line in lines:
-        hand, bet = line.split()
-        type = determine_hand_type(hand)
-        types_in_hand.append((type, hand, int(bet)))
+    types_in_hand = [
+        (determine_hand_type(hand), hand, int(bet))
+        for hand, bet in (line.split() for line in lines)
+    ]
 
-    sum = 0
+    s = sorted(types_in_hand, key=lambda t: (t[0], [C.get(char, 0) for char in t[1]]))
 
-    def custom_sort_key(tuple):
-        return (tuple[0], [C.get(char, 0) for char in tuple[1]])
-
-    s = sorted(types_in_hand, key=custom_sort_key)
-    for i, h in enumerate(s):
-        sum += (i + 1) * h[2]
-
-    print(f"sum: {sum}")
+    print(sum((i + 1) * h[2] for i, h in enumerate(s)))
 
 
 if __name__ == "__main__":
