@@ -1,3 +1,4 @@
+from collections import Counter
 from time import time
 
 D = open(0).read()
@@ -31,72 +32,47 @@ T = {
 
 
 def determine_hand_type(hand):
-    j_count = hand.count("J")
+    counter = Counter(hand)
+    J = counter["J"]
+    if J == 5 or J == 4:
+        return T["five of a kind"]
 
-    current_best = "high card"
+    del counter["J"]
 
-    counted = set()
-    for h in hand:
-        if h in counted or h == "J":
-            continue
+    print(J)
 
-        count = hand.count(h)
-        counted.add(h)
-
-        if count == 1:
-            current_best = current_best
-        elif count == 2:
-            if current_best == "pair":
-                current_best = "two pair"
-            elif current_best == "three of a kind":
-                current_best = "full house"
-            else:
-                current_best = "pair"
-
-        elif count == 3:
-            if current_best == "pair":
-                current_best = "full house"
-            else:
-                current_best = "three of a kind"
-        elif count == 4:
-            current_best = "four of a kind"
+    counts = list(counter.values())
+    if J == 3:
+        if 2 in counts:
+            return T["five of a kind"]
         else:
-            current_best = "five of a kind"
+            return T["four of a kind"]
+    elif J == 2:
+        if 2 in counts:
+            return T["four of a kind"]
+        if 3 in counts:
+            return T["five of a kind"]
+        else:
+            return T["three of a kind"]
 
-    if current_best == "high card":
-        if j_count == 1:
-            current_best = "pair"
-        elif j_count == 2:
-            current_best = "three of a kind"
-        elif j_count == 3:
-            current_best = "four of a kind"
-        elif j_count == 4:
-            current_best = "five of a kind"
-        elif j_count == 5:
-            current_best = "five of a kind"
+    if 4 in counts:
+        return T["four of a kind"]
+    elif 5 in counts:
+        return T["five of a kind"]
+    elif 2 in counts:
+        if counts.count(2) == 2:
+            return T["two pair"]
+        elif 3 in counts:
+            return T["full house"]
 
-    elif current_best == "pair":
-        if j_count == 1:
-            current_best = "three of a kind"
-        elif j_count == 2:
-            current_best = "four of a kind"
-        elif j_count == 3:
-            current_best = "five of a kind"
+        return T["pair"]
+    elif 3 in counts:
+        if 2 in counts:
+            return T["full house"]
 
-    elif current_best == "two pair":
-        if j_count == 1:
-            current_best = "full house"
+        return T["three of a kind"]
 
-    elif current_best == "three of a kind":
-        if j_count == 1:
-            current_best = "four of a kind"
-        elif j_count == 2:
-            current_best = "five of a kind"
-
-    elif current_best == "four of a kind" and j_count == 1:
-        current_best = "five of a kind"
-
-    return T[current_best]
+    return T["high card"]
 
 
 def part2():
